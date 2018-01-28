@@ -1,0 +1,7 @@
+[package]
+name = "parsercombinator"
+version = "0.1.0"
+authors = ["Sten Verbois <stenverbois@gmail.com>"]
+
+[dependencies]
+nom = { version = "^3.2", features = ["nightly"] }
