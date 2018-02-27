@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if cargo build --release; then
+    ./target/release/cashcode "$@"
+else
+    exit 1
+fi

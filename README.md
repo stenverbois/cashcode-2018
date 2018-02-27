@@ -1,6 +1,6 @@
-# cashcode-2018
+# Ca$hCode 2018
 
-Repo for hashcode 2018 of the team Ca$hCode. 
+Repo for Google Hash Code 2018 of team Ca$hCode.
 
 # How to run
 

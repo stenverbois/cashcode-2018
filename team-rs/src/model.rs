@@ -1,16 +1,12 @@
 #![allow(unused_parens)]
 
-#[macro_use]
-extern crate nom;
 use nom::*;
 
-use std::fs::File;
-use std::io::Read;
 use std::str;
 use std::str::FromStr;
 
 #[derive(Clone, Debug)]
-struct Input {
+pub struct Input {
     nrows: u32,
     ncolumns: u32,
     ndrones: u32,
@@ -21,19 +17,24 @@ struct Input {
     orders: Vec<Order>,
 }
 
+#[derive(Debug)]
+pub struct Output {
+
+}
+
 #[derive(Clone, Debug)]
-struct Warehouse {
+pub struct Warehouse {
     loc: (u32, u32),
     inventory: Vec<u32>,
 }
 
 #[derive(Clone, Debug)]
-struct Order {
+pub struct Order {
     loc: (u32, u32),
     types: Vec<u32>,
 }
 
-named!(input<Input>, do_parse!(
+named!(pub input<Input>, do_parse!(
     nrows: integer    >>
     ncolumns: integer >>
     ndrones: integer  >>
@@ -85,12 +86,3 @@ named!(integer<u32>,
       map_res!(terminated!(digit, opt!(char!(' '))), str::from_utf8),
       FromStr::from_str
 ));
-
-fn main() {
-    let mut f = File::open("input.txt").expect("file not found");
-    let mut contents = Vec::new();
-    f.read_to_end(&mut contents).unwrap();
-
-    let result = input(&contents);
-    println!("{:?}", result);
-}
