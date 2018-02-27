@@ -1,0 +1,19 @@
+#!/bin/bash
+
+SUBMISSION_NAME=submission.tar.gz
+MODE=debug
+
+if [[ $MODE == "debug" ]]
+then
+    if cargo build; then
+        ./target/debug/cashcode "$@"
+        zip -r $SUBMISSION_NAME src
+        mv $SUBMISSION_NAME output/
+    fi
+else
+    if cargo build --release; then
+        ./target/release/cashcode "$@"
+        zip -r $SUBMISSION_NAME src
+        mv $SUBMISSION_NAME output/
+    fi
+fi

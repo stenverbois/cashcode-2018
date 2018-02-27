@@ -1,7 +1,0 @@
-#!/bin/bash
-
-if cargo build; then
-    ./target/debug/cashcode "$@"
-else
-    exit 1
-fi
