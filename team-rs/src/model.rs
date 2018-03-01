@@ -7,14 +7,13 @@ use std::str::FromStr;
 
 #[derive(Clone, Debug)]
 pub struct Input {
-    nrows: u32,
-    ncolumns: u32,
-    ndrones: u32,
-    deadline: u32,
-    maxload: u32,
-    weights: Vec<u32>,
-    warehouses: Vec<Warehouse>,
-    orders: Vec<Order>,
+    pub nrows: u32,
+    pub ncolumns: u32,
+    pub nvehicles: u32,
+    pub nrides: u32,
+    pub bonus: u32,
+    pub max_steps: u32,
+    pub rides: Vec<Ride>,
 }
 
 #[derive(Debug)]
@@ -23,57 +22,70 @@ pub struct Output {
 }
 
 #[derive(Clone, Debug)]
-pub struct Warehouse {
-    loc: (u32, u32),
-    inventory: Vec<u32>,
+pub struct Ride {
+    pub start: (u32, u32),
+    pub end: (u32, u32),
+    pub tbegin: u32,
+    pub tend: u32,
 }
 
 #[derive(Clone, Debug)]
-pub struct Order {
-    loc: (u32, u32),
-    types: Vec<u32>,
+pub struct Rides {
+    pub starts: Vec<(u32, u32)>,
+    pub ends: Vec<(u32, u32)>,
+    pub tbegins: Vec<u32>,
+    pub tends: Vec<u32>,
+}
+
+pub fn to_alt(rides: &Vec<Ride>) -> Rides {
+    let mut alt_rides = Rides {
+        starts: Vec::new(),
+        ends: Vec::new(),
+        tbegins: Vec::new(),
+        tends: Vec::new(),
+    };
+
+    for ride in rides.iter() {
+        alt_rides.starts.push(ride.start);
+        alt_rides.ends.push(ride.end);
+        alt_rides.tbegins.push(ride.tbegin);
+        alt_rides.tends.push(ride.tend);
+    }
+
+    alt_rides
 }
 
 named!(pub input<Input>, do_parse!(
     nrows: integer    >>
     ncolumns: integer >>
-    ndrones: integer  >>
-    deadline: integer >>
-    maxload: terminated!(integer, newline)   >>
-    weights: preceded!(skipline, lineofints) >>
-    warehouses: warehouses >>
-    orders: orders >>
+    nvehicles: integer  >>
+    nrides: integer >>
+    bonus: integer >>
+    max_steps: terminated!(integer, newline)   >>
+    rides: rides >>
     ( Input {
         nrows,
         ncolumns,
-        ndrones,
-        deadline,
-        maxload,
-        weights,
-        warehouses,
-        orders,
+        nvehicles,
+        nrides,
+        bonus,
+        max_steps,
+        rides,
     })
 ));
 
-named!(warehouses<Vec<Warehouse>>,
-    length_count!(
-        map!(lineofints, |v| v[0]),
+named!(rides<Vec<Ride>>,
+    many1!(
         do_parse!(
-            loc: map!(lineofints, |t| (t[0], t[1])) >>
-            inventory: lineofints                   >>
-            ( Warehouse {loc, inventory} )
-        )
-    )
-);
-
-named!(orders<Vec<Order>>,
-    length_count!(
-        map!(lineofints, |v| v[0]),
-        do_parse!(
-            loc: map!(lineofints, |t| (t[0], t[1])) >>
-            skipline                                >>
-            types: lineofints                       >>
-            ( Order {loc, types} )
+            ints: lineofints >>
+            ( 
+                Ride {
+                    start: (ints[0], ints[1]),
+                    end: (ints[2], ints[3]),
+                    tbegin: ints[4],
+                    tend: ints[5],
+                }
+            )
         )
     )
 );

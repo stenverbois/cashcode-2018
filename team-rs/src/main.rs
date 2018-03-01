@@ -41,11 +41,17 @@ fn do_single_file(path: &str) {
     output(&data_out, Path::new(path).file_name().unwrap().to_str().unwrap());
 }
 
-fn output(out: &Output, out_path: &str) {
+fn output(out: &Vec<Vec<u32>>, out_path: &str) {
     let mut ofs = File::create(format!("./output/{}.out", out_path)).expect("unable to open output file");
 
-    let _ = ofs.write(format!("something {}\n", 5).as_bytes());
-    let _ = ofs.write("something else\n".as_bytes());
+    for line in out {
+        let _ = ofs.write(format!("{} ", line.len()).as_bytes());
+        for number in line {
+            let _ = ofs.write(format!("{} ", number).as_bytes());
+        }
+        let _ = ofs.write("\n".as_bytes());
+    }
+
 }
 
 fn main() {
