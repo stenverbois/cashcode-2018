@@ -4,7 +4,7 @@ def get_distance(startpos, endpos):
 def exec_alg(data):
     cars = data[0]
     # Sort on start time
-    rides = sorted(data[1], key=lambda x: x.start_time)
+    rides = sorted(data[1], key=lambda x: (x.end_time - x.distance - x.start_time))
 
     cars_occupied = []
     B = data[2]
@@ -16,7 +16,11 @@ def exec_alg(data):
             if len(rides) == 0:
                 break
             ride = rides.pop(0)
-            car = cars.pop(0)
+
+            # How do you choose the ride
+            cars = sorted(cars, key= lambda x: max(get_distance(x.pos, ride.startpos), ride.start_time - t) )
+            car = cars.pop()
+
             car.set_ride(ride, t)
             cars_occupied.append(car)
 

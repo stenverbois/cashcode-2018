@@ -27,6 +27,7 @@ class Car:
             self.busy_time = max(0, self.busy_time - 1)
             if self.busy_time == 0:
                 self.memory.append(self.ride.ride_id)
+                self.pos = self.ride.endpos
                 self.ride = None
 
     def set_ride(self, ride, current_time):
