@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate nom;
+extern crate rand;
 
 use std::env;
 use std::fs::{self, File};

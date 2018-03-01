@@ -5,3 +5,4 @@ authors = ["Sten Verbois <stenverbois@gmail.com>"]
 
 [dependencies]
 nom = { version = "^3.2", features = ["nightly"] }
+rand = "0.4"
