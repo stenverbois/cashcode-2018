@@ -20,13 +20,13 @@ def choose_schedule(car, rides, T):
 
     while time < T:
         print(time, T)
+        if len(rides_left) == 0:
+            break
         #print(car.car_id, rides_left)
         scores = get_score(current_pos, rides_left, time)
         sorted_infos = sorted(scores)
 
         score, ride_id = sorted_infos[0][0], sorted_infos[0][1]
-        if score == 0:
-            break
         #print(ride_id)
         car.memory.append(ride_id)
         for i, ride in enumerate(rides_left):
