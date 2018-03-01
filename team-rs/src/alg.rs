@@ -169,30 +169,40 @@ fn make_assignment(gen: &Generation, ctx: &Context) -> Vec<i32> {
 
     let mut res = vec![0; costs_for_all_cars.len()];
     let mut available = gen.available.clone();
-    for (car, cost_for_one_car) in costs_for_all_cars.iter().enumerate() {
-        let mut min_ride_cost = i32::max_value();
-        let mut min_ride_idx: i32 = -1;
-        // @TODO: optimize
-        // @TODO Haalbare rides
-        {
-            let available_rides = cost_for_one_car.iter().enumerate().filter(|&(ride, _)| {
-                let doable = doable(gen, ctx, car as u32, ride as u32);
-                // println!("DOABLE {:?}", doable);
-                available[ride] && doable
-            });
-            for (ride_idx, &cost) in available_rides {
-                if cost < min_ride_cost {
-                    min_ride_idx = ride_idx as i32;
+
+    let mut todo: Vec<usize> = (0..costs_for_all_cars.len()).collect();
+
+    while !todo.is_empty() {
+        let mut min_ride_costs = vec![i32::max_value(); costs_for_all_cars.len()];
+        let mut min_ride_idxs = vec![-1; costs_for_all_cars.len()];
+
+        for (car, cost_for_one_car) in costs_for_all_cars.iter().enumerate().filter(|&(idx, _)| todo.contains(&idx)) {
+            // @TODO: optimize
+            // @TODO Haalbare rides
+            {
+                let available_rides = cost_for_one_car.iter().enumerate().filter(|&(ride, _)| {
+                    let doable = doable(gen, ctx, car as u32, ride as u32);
+                    // println!("DOABLE {:?}", doable);
+                    available[ride] && doable
+                });
+                for (ride_idx, &cost) in available_rides {
+                    if cost < min_ride_costs[car] {
+                        min_ride_idxs[car] = ride_idx as i32;
+                    }
                 }
             }
         }
 
-        res[car] = min_ride_idx;
-        if min_ride_idx != -1 {
-            available[min_ride_idx as usize] = false;
+        let (best_car, _) = min_ride_costs.iter().enumerate().filter(|&(idx, _)| todo.contains(&idx)).min_by_key(|&(_, &v)| v).unwrap();
+        res[best_car] = min_ride_idxs[best_car];
+        
+        todo.remove_item(&best_car);
+
+        if min_ride_idxs[best_car] != -1 {
+            available[min_ride_idxs[best_car] as usize] = false;
         }
     }
-
+    
     res
 }
 
