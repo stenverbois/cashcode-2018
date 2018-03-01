@@ -2,6 +2,7 @@
 from IO import parse, output
 import sys, os
 import algo1
+import algo2
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
