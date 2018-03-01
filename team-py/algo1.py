@@ -19,7 +19,6 @@ def choose_schedule(car, rides, T):
     current_pos = (0,0)
 
     while time < T:
-        print(time, T)
         if len(rides_left) == 0:
             break
         #print(car.car_id, rides_left)
@@ -47,10 +46,14 @@ def get_score(current_pos, rides, time):
     for i,ride in enumerate(rides):
         #print(ride)
         score = ride.score
-        if time + max(get_distance(current_pos, ride.startpos), ride.start_time - time) + ride.distance > ride.end_time:
-            scores.append((0, ride.ride_id))
-        else:
-            scores.append((score, ride.ride_id))
+
+        last_start_time = ride.end_time - ride.distance - max(get_distance(current_pos, ride.startpos), ride.start_time - time)
+        scores.append((last_start_time, ride.ride_id))
+
+        #if time + max(get_distance(current_pos, ride.startpos), ride.start_time - time) + ride.distance > ride.end_time:
+        #    scores.append((0, ride.ride_id))
+        #else:
+        #    scores.append((score, ride.ride_id))
 
     return scores
 
