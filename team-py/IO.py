@@ -7,47 +7,31 @@ def parse(filename):
         dictionary = {"filename": filename[6:]}
 
         # Line 1 (VERCX)
-        [V, E, R, C, X] = map(int, lines[0].split())
-        dictionary['V'] = V
-        dictionary['E'] = E
+        [R, C, F, N, B, T] = map(int, lines[0].split())
         dictionary['R'] = R
         dictionary['C'] = C
-        dictionary['X'] = X
+        dictionary['F'] = F
+        dictionary['N'] = N
+        dictionary['B'] = B
+        dictionary['T'] = T
 
-        # Line 2 (video sizes)
-        dictionary['S']= list(map(int, lines[1].split()))
+        line = 1
+        rides = []
+        for i in range(N):
+            ride_info = list(map(int, lines[line + i].split()))
+            rides.append(Ride( (ride_info[0], ride_info[1]), (ride_info[2], ride_info[3]), ride_info[4], ride_info[5], i ))
 
-        # Latencies
-        line = 2
-        endpoint = 0
-        dictionary['Ld'] = [0 for _ in range(E)]
-        dictionary['Lc'] = {}
-        while endpoint < E:
-            [L, K] = map(int, lines[line].split())
-            dictionary['Ld'][endpoint] = L
-            for j in range(K):
-                [cacheId, latency] = map(int, lines[line+j+1].split())
-                dictionary['Lc'][(endpoint,cacheId)] = latency
-            endpoint += 1
-            line += K+1
-
-        # Requests
-        def parseReqLine(line):
-            [v, e, r] = map(int, line.split())
-            return (v, e, r)
-        dictionary['Rqs'] = list(map(parseReqLine, lines[line:]))
+        cars = []
+        for j in range(F):
+            cars.append( Car((0,0), j) )
 
         # Return problem data
-        return dictionary
+        return (cars, rides, B, T)
 
 # Output the solution
 def output(filename, solution):
     # Cut off 'input/'
-    with open('output_{}.txt'.format(filename[6:-3]), mode="w") as ofs:
+    with open('output/{}.txt'.format(filename[6:-3]), mode="w") as ofs:
         print("Outputting solution for {}...".format(filename[6:]))
-        if solution and isinstance(solution[0], ?):
-            pass
-        else:
-            ofs.write("{}\n".format(len(solution)))
-            for idx, s in enumerate(solution):
-                ofs.write("{} {}\n".format(idx, " ".join(map(str, s))))
+        for car in solution:
+            ofs.write("{}\n".format(str(car)))
