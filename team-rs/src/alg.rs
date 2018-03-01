@@ -13,19 +13,55 @@ pub fn exec_alg(input: Input) -> Vec<Vec<u32>> {
         Pe: alt_rides.ends,
         Ts: alt_rides.tbegins,
         Te: alt_rides.tends,
+        bonus: input.bonus,
     };
 
     let mut result: Vec<Vec<u32>> = vec![Vec::new(); input.nvehicles as usize];
     while gen.available.iter().any(|&a| a) {
+        // println!("AVAILABLE {:?}", gen.available);
         // println!("GENERATION");
         let assignment = make_assignment(&gen, &ctx);
+
+
+        if assignment.iter().all(|&a| a == -1) {
+            break;
+        }
+
         // println!("{:?}", assignment);
         // println!("{:?}", assignment.len());
         gen = next_gen(&gen, &ctx, &assignment);
 
+        let max_time = gen.Tc.iter().max().unwrap().clone();
+
+        use std::cmp;
+        let new_ctx = Context {
+            Ps: ctx.Ps.clone(),
+            Pe: ctx.Pe.clone(),
+            Ts: ctx.Ts.clone(),
+            Te: ctx.Te.iter().map(|&te| cmp::min(te, max_time)).collect(),
+            bonus: ctx.bonus,
+            
+        };
+
         for (idx, &ass) in assignment.iter().enumerate() {
             if ass != -1 {
                 result[idx].push(ass as u32);
+            }
+        }
+
+        loop {
+            let new_assignment = make_assignment(&gen, &new_ctx);
+            // println!("{:?}", new_assignment);
+            if new_assignment.iter().all(|&a| a == -1) {
+                break;
+            }
+
+            gen = next_gen(&gen, &new_ctx, &new_assignment);
+
+            for (idx, &ass) in new_assignment.iter().enumerate() {
+                if ass != -1 {
+                    result[idx].push(ass as u32);
+                }
             }
         }
     }
@@ -58,6 +94,7 @@ struct Context {
     Pe: Vec<(u32, u32)>,
     Ts: Vec<u32>,
     Te: Vec<u32>,
+    bonus: u32,
 }
 
 fn next_gen(gen: &Generation,  ctx: &Context, assignments: &Vec<i32>) ->
@@ -93,13 +130,34 @@ fn simple_cost(gen: &Generation, ctx: &Context) -> Vec<Vec<i32>> {
     let nrides = ctx.Pe.len();
     let mut res = vec![vec![0i32; nrides]; ncars];
     // @TODO: Filter onmogelijke ritten
+
+    let cars_4_ride = cars_for_ride(gen, ctx);
     for c in 0..ncars {
         for r in 0..nrides {
             let dead_dist = dist(gen.Pc[c], ctx.Ps[r]);
             // @TODO: Dit zo laten meetellen? 
             let wait = ctx.Ts[r] as i32 - (gen.Tc[c] as i32 + dist(gen.Pc[c], ctx.Ps[r]) as i32);
         
-            res[c][r] = dead_dist as i32 + wait as i32;
+            let bonus = if wait >= 0 {
+                -(ctx.bonus as i32)
+            } else {
+                0
+            };
+
+            res[c][r] = (dead_dist as i32 + wait as i32 + bonus) * (cars_4_ride[r] << 1) as i32;
+        }
+    }
+
+    res
+}
+
+fn cars_for_ride(gen: &Generation, ctx: &Context) -> Vec<u32> {
+    let mut res = vec![0; ctx.Ps.len()];
+    for ride in 0..ctx.Ps.len() {
+        for car in 0..gen.Pc.len() {
+            if doable(gen, ctx, car as u32, ride as u32) {
+                res[ride] += 1;
+            }
         }
     }
 
